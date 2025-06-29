@@ -192,7 +192,7 @@
             font-size: 0.875rem; /* Mantenido en text-sm */
         }
 
-        /* Estilos específicos para los submenús desplegables */
+        /* Estilos específicos para los submenús desplegables (versión desktop) */
         .dropdown-menu {
             position: absolute;
             top: 100%; /* Justo debajo del elemento padre */
@@ -209,6 +209,7 @@
             z-index: 100; /* Asegura que esté por encima de otros elementos */
             padding: 0.5rem 0; /* Aumentado el padding general del menú */
             margin-top: 0.2rem;
+            pointer-events: none; /* Permite clics a través del menú cuando está oculto */
         }
 
         /* Desktop dropdown hover effect (managed by CSS) */
@@ -216,6 +217,7 @@
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) translateY(0); /* Se desliza hacia abajo a su posición final */
+            pointer-events: auto; /* Habilita clics cuando es visible */
         }
 
         .dropdown-menu a {
@@ -260,7 +262,7 @@
             }
 
             #main-navigation-menu {
-                display: none; /* Oculta el menú normal */
+                display: flex; /* Siempre flex en móvil para permitir el control de altura/opacidad */
                 flex-direction: column;
                 position: absolute;
                 top: 60px; /* Ajusta según la altura de tu header */
@@ -272,16 +274,22 @@
                 padding-bottom: 1rem;
                 padding-top: 0.5rem;
                 overflow: hidden;
-                height: 0; /* Inicialmente colapsado */
-                transition: height 0.3s ease-in-out;
+                
+                /* Propiedades para controlar el colapso/despliegue del menú principal */
+                max-height: 0;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: max-height 0.3s ease-in-out, opacity 0.3s ease, visibility 0.3s ease;
             }
 
             #main-navigation-menu.active {
-                display: flex; /* Muestra el menú cuando está activo */
-                height: auto; /* Permite que el contenido determine la altura */
-                max-height: 500px; /* Un valor alto para asegurar que se despliegue */
+                max-height: 500px; /* Valor suficiente para mostrar el contenido */
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
             }
-
+            
             #main-navigation-menu li {
                 width: 100%;
                 text-align: center; /* Centra el texto */
@@ -300,6 +308,7 @@
                 border-bottom: none; /* Elimina el borde del último elemento */
             }
 
+            /* Estilos específicos para los submenús en modo móvil */
             .dropdown-menu {
                 position: static; /* Cambia a estático para que fluya con el contenido */
                 width: 100%;
@@ -309,6 +318,34 @@
                 background-color: #2a2a4a; /* Un fondo un poco diferente para el submenú en móvil */
                 padding: 0;
                 margin-top: 0;
+                display: flex; /* Usa flexbox para el submenú también */
+                flex-direction: column;
+                align-items: center; /* Centra los elementos del submenú */
+                
+                /* Propiedades para controlar el colapso/despliegue en móvil */
+                max-height: 0;
+                opacity: 0;
+                visibility: hidden;
+                transition: max-height 0.3s ease-in-out, opacity 0.3s ease, visibility 0.3s ease;
+                pointer-events: none;
+            }
+
+            /* Mostrar el submenú cuando su padre tenga la clase 'active-mobile' */
+            .group.active-mobile .dropdown-menu {
+                max-height: 200px; /* Valor suficiente para mostrar el contenido */
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+                padding-top: 0.5rem; /* Pequeño padding para el contenido del submenú */
+                padding-bottom: 0.5rem;
+            }
+
+            .group .nav-link-terminal .lucide {
+                transition: transform 0.3s ease;
+            }
+
+            .group.active-mobile .nav-link-terminal .lucide {
+                transform: rotate(180deg);
             }
 
             .group:hover .dropdown-menu {
@@ -316,8 +353,74 @@
             }
 
             .dropdown-menu a {
-                padding-left: 2.5rem; /* Indentación para elementos del submenú */
+                padding-left: 0; /* Elimina la indentación en móvil */
                 justify-content: center; /* Centra el texto en el submenú */
+                width: 100%; /* Asegura que los enlaces ocupen todo el ancho disponible */
+            }
+        }
+
+        /* Estilos para el aviso de cookies */
+        #cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #2a2a4a; /* Fondo oscuro similar a los menús */
+            color: #e0e0e0;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+            z-index: 999; /* Asegura que esté por encima de todo */
+            transform: translateY(100%); /* Inicialmente oculto hacia abajo */
+            transition: transform 0.5s ease-out;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cookie-banner.show {
+            transform: translateY(0); /* Muestra el banner */
+        }
+
+        #cookie-banner button {
+            background-color: #00FFFF;
+            color: #1a1a2e;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px; /* rounded-full */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 0.8rem; /* Espacio entre texto y botón */
+        }
+
+        #cookie-banner button:hover {
+            background-color: #33FFFF;
+            transform: translateY(-2px); /* Ligero efecto de elevación */
+        }
+
+        #cookie-banner p {
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.5;
+            margin-bottom: 0.5rem; /* Espacio antes del botón */
+        }
+
+        /* Responsive adjustments for cookie banner text */
+        @media (min-width: 768px) {
+            #cookie-banner {
+                flex-direction: row; /* En desktop, el texto y botón en la misma fila */
+                justify-content: space-between;
+                padding: 1rem 2rem;
+            }
+            #cookie-banner p {
+                margin-bottom: 0;
+                margin-right: 1rem; /* Espacio entre texto y botón */
+                text-align: left;
+            }
+            #cookie-banner button {
+                margin-top: 0;
             }
         }
     </style>
@@ -532,6 +635,12 @@
         </div>
     </footer>
 
+    <!-- Aviso de Cookies -->
+    <div id="cookie-banner">
+        <p>Este sitio web utiliza cookies para mejorar tu experiencia de usuario. Al continuar navegando, aceptas nuestra política de cookies.</p>
+        <button id="accept-cookies">Aceptar</button>
+    </div>
+
     <script>
         // Inicializa los iconos de Lucide
         lucide.createIcons();
@@ -542,27 +651,59 @@
 
         if (hamburgerButton && mainNavigationMenu) {
             hamburgerButton.addEventListener('click', () => {
-                mainNavigationMenu.classList.toggle('active');
-                if (mainNavigationMenu.classList.contains('active')) {
-                    mainNavigationMenu.style.height = mainNavigationMenu.scrollHeight + 'px';
-                } else {
-                    mainNavigationMenu.style.height = '0';
+                const isActive = mainNavigationMenu.classList.toggle('active');
+                if (!isActive) { // Si el menú se está cerrando
+                    // Al cerrar el menú principal, también cierra todos los submenús
+                    mainNavigationMenu.querySelectorAll('.group.active-mobile').forEach(group => {
+                        group.classList.remove('active-mobile');
+                    });
                 }
             });
+
+            // Manejo de los submenús para dispositivos móviles
+            mainNavigationMenu.querySelectorAll('.group > .nav-link-terminal').forEach(dropdownToggler => {
+                dropdownToggler.addEventListener('click', function(e) {
+                    // Previene la navegación directa si hay un submenú para controlar
+                    if (window.innerWidth < 768) { // Solo en vista móvil
+                        e.preventDefault(); 
+                        const parentGroup = this.closest('.group');
+
+                        // Cierra otros submenús abiertos, excepto el actual
+                        mainNavigationMenu.querySelectorAll('.group.active-mobile').forEach(openGroup => {
+                            if (openGroup !== parentGroup) {
+                                openGroup.classList.remove('active-mobile');
+                            }
+                        });
+
+                        // Abre o cierra el submenú actual
+                        parentGroup.classList.toggle('active-mobile');
+                    }
+                });
+            });
+
 
             // Cerrar el menú si se hace clic fuera o se redimensiona la pantalla (para escritorio)
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 768) { // md breakpoint in Tailwind is 768px
                     mainNavigationMenu.classList.remove('active');
-                    mainNavigationMenu.style.height = 'auto'; // Restablecer la altura para pantallas grandes
+                    // Asegúrate de que los submenús vuelvan a su estado de escritorio
+                    mainNavigationMenu.querySelectorAll('.group.active-mobile').forEach(group => {
+                        group.classList.remove('active-mobile');
+                    });
                 }
             });
             // Opcional: Cerrar menú si se hace clic en un enlace dentro del menú (para navegacion mobile)
             mainNavigationMenu.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
-                    if (mainNavigationMenu.classList.contains('active') && window.innerWidth < 768) {
-                        mainNavigationMenu.classList.remove('active');
-                        mainNavigationMenu.style.height = '0';
+                    // Solo cierra si es un enlace final (no un padre de dropdown) y si estamos en móvil
+                    const parentGroup = link.closest('.group');
+                    if (!parentGroup || link.parentElement.classList.contains('dropdown-menu')) { // Es un enlace final o un elemento de submenú
+                         if (mainNavigationMenu.classList.contains('active') && window.innerWidth < 768) {
+                            mainNavigationMenu.classList.remove('active');
+                            mainNavigationMenu.querySelectorAll('.group.active-mobile').forEach(group => {
+                                group.classList.remove('active-mobile');
+                            });
+                        }
                     }
                 });
             });
@@ -572,38 +713,63 @@
         // Agrega un listener para el desplazamiento suave de los enlaces de anclaje
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                } else {
-                    // Redirecciones a páginas dedicadas
-                    if (targetId === 'planes-redirect') {
-                        window.location.href = 'minecrafthosting.html';
-                    } else if (targetId === 'minecraft-hosting') {
-                        window.location.href = 'minecrafthosting.html';
-                    } else if (targetId === 'web-design') {
-                        window.location.href = 'hostingweb.html';
-                    } else if (targetId === 'foro') {
-                        console.log('Redirigiendo a la página del Foro...');
-                        // window.location.href = '/foro.html'; // Descomenta y ajusta
-                    } else if (targetId === 'centro-informacion') {
-                        window.location.href = 'centrodeayuda.html';
-                    } else if (targetId === 'hablar-staff') {
-                        console.log('Redirigiendo a la opción Hablar con un Staff...');
-                        // window.location.href = '/ayuda/contacto-staff.html'; // Descomenta y ajusta
-                    } else if (targetId === 'panel') {
-                        console.log('Redirigiendo al panel de usuario...');
-                        // window.location.href = '/panel.html'; // Descomenta y ajusta
-                    } else if (targetId === 'contacto') {
-                        // Puedes redirigir a un formulario de contacto o una sección de contacto
-                        console.log('Redirigiendo a la sección de contacto o formulario.');
+                // Para los enlaces dentro de submenús en móvil, ya se gestiona el e.preventDefault() en la función superior.
+                // Aquí solo queremos asegurar el scroll suave si no es un toggle de submenú.
+                const parentGroup = this.closest('.group');
+                if (!(parentGroup && window.innerWidth < 768 && !this.parentElement.classList.contains('dropdown-menu'))) {
+                    // Si no es un enlace de nivel superior con submenú en móvil, permite el default
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    } else {
+                        // Redirecciones a páginas dedicadas
+                        if (targetId === 'planes-redirect') {
+                            window.location.href = 'minecrafthosting.html';
+                        } else if (targetId === 'minecraft-hosting') {
+                            window.location.href = 'minecrafthosting.html';
+                        } else if (targetId === 'web-design') {
+                            window.location.href = 'hostingweb.html';
+                        } else if (targetId === 'foro') {
+                            console.log('Redirigiendo a la página del Foro...');
+                            // window.location.href = '/foro.html'; // Descomenta y ajusta
+                        } else if (targetId === 'centro-informacion') {
+                            window.location.href = 'centrodeayuda.html';
+                        } else if (targetId === 'hablar-staff') {
+                            console.log('Redirigiendo a la opción Hablar con un Staff...');
+                            // window.location.href = '/ayuda/contacto-staff.html'; // Descomenta y ajusta
+                        } else if (targetId === 'panel') {
+                            console.log('Redirigiendo al panel de usuario...');
+                            // window.location.href = '/panel.html'; // Descomenta y ajusta
+                        } else if (targetId === 'contacto') {
+                            // Puedes redirigir a un formulario de contacto o una sección de contacto
+                            console.log('Redirigiendo a la sección de contacto o formulario.');
+                        }
+                        // Los enlaces a Discord e Instagram en el menú de Contacto ya tienen target="_blank" y href directos
                     }
-                    // Los enlaces a Discord e Instagram en el menú de Contacto ya tienen target="_blank" y href directos
                 }
+            });
+        });
+
+        // Lógica del aviso de cookies
+        document.addEventListener('DOMContentLoaded', () => {
+            const cookieBanner = document.getElementById('cookie-banner');
+            const acceptCookiesButton = document.getElementById('accept-cookies');
+            const cookieAccepted = localStorage.getItem('cookieAccepted');
+
+            if (!cookieAccepted) {
+                // Muestra el banner después de un pequeño retraso para asegurar que la página cargue
+                setTimeout(() => {
+                    cookieBanner.classList.add('show');
+                }, 1000); 
+            }
+
+            acceptCookiesButton.addEventListener('click', () => {
+                cookieBanner.classList.remove('show');
+                localStorage.setItem('cookieAccepted', 'true');
             });
         });
     </script>
