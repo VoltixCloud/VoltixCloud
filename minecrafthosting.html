@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoltixCloud: Planes de Hosting de Minecraft</title>
+    <!-- Favicon -->
+    <link rel="icon" href="./images/logo.ico" type="image/x-icon">
+    <!-- Incluye Tailwind CSS para un estilo rápido y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuentes de Google Fonts: Inter (general) y Fira Code (para estilo terminal) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos de Lucide React para elementos visuales -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e; /* Color de fondo oscuro principal */
+            color: #e0e0e0; /* Color de texto claro */
+            position: relative; /* Necesario para el pseudo-elemento de fondo */
+            overflow-x: hidden; /* Evita scroll horizontal por animaciones */
+        }
+
+        /* Animación de fondo */
+        body::before {
+            content: '';
+            position: fixed; /* Fija el fondo al viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 85% 60%, rgba(102, 51, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(0, 255, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 30% 90%, rgba(102, 51, 153, 0.08) 0%, transparent 50%);
+            background-size: 100% 100%; /* Ajuste inicial del tamaño del degradado */
+            animation: background-pulse 20s infinite alternate ease-in-out;
+            z-index: -2; /* Asegura que esté por debajo del contenido y del hero */
+            pointer-events: none; /* Permite clics a través del fondo */
+        }
+
+        @keyframes background-pulse {
+            0% {
+                transform: scale(1) translate(0, 0);
+                opacity: 0.8;
+                background-position: 0% 0%, 100% 100%, 50% 0%, 0% 100%;
+            }
+            50% {
+                transform: scale(1.05) translate(5vw, -5vh);
+                opacity: 0.9;
+                background-position: 10% 20%, 90% 80%, 60% 10%, 20% 90%;
+            }
+            100% {
+                transform: scale(1) translate(0, 0);
+                opacity: 0.8;
+                background-position: 0% 0%, 100% 100%, 50% 0%, 0% 100%;
+            }
+        }
+
+        .hero-section {
+            background-image: url('./images/fondo.jpeg'); /* Imagen de fondo para el héroe */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 0;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.4)); /* Degradado oscuro para superponer */
+            z-index: -1;
+        }
+        .btn-primary {
+            background-color: #00FFFF; /* Verde cian para el botón primario */
+            color: #1a1a2e; /* Texto oscuro para contraste */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #33FFFF; /* Verde cian más claro al pasar el ratón */
+            color: #1a1a2e;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            border: 2px solid #00FFFF; /* Borde verde cian */
+            color: #00FFFF; /* Texto verde cian */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #00FFFF; /* Fondo verde cian al pasar el ratón */
+            color: #1a1a2e; /* Texto oscuro al pasar el ratón */
+        }
+        .icon-small {
+            width: 24px;
+            height: 24px;
+        }
+        /* Estilos para que los iconos de Lucide sean visibles */
+        .lucide {
+            display: inline-block;
+            vertical-align: middle;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Estilos de Menú de Navegación estilo Terminal/Hacking */
+        .nav-link-terminal {
+            font-family: 'Fira Code', monospace; /* Fuente estilo código */
+            font-size: 0.85rem; /* Reducido de 0.9rem */
+            text-transform: uppercase;
+            letter-spacing: 0.08em; /* Mantiene espaciado */
+            position: relative;
+            padding-bottom: 3px; /* Reducido de 4px */
+            color: #e0e0e0; /* Color inicial del texto */
+            transition: color 0.3s ease;
+            animation: nav-glow-flicker 3s infinite alternate ease-in-out; /* Animación constante */
+        }
+        .nav-link-terminal:hover {
+            color: #00FFFF; /* Verde cian al pasar el ratón */
+        }
+        .nav-link-terminal::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0%;
+            height: 2px;
+            background-color: #00FFFF; /* Subrayado verde cian */
+            transition: width 0.3s ease-in-out;
+        }
+        .nav-link-terminal:hover::after {
+            width: 100%; /* Expande el subrayado al pasar el ratón */
+        }
+
+        /* Keyframes para el brillo constante de la navegación (ahora verde cian) */
+        @keyframes nav-glow-flicker {
+            0%, 100% {
+                text-shadow: 0 0 5px rgba(0, 255, 255, 0.4), 0 0 10px rgba(0, 255, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.3);
+            }
+        }
+
+        /* Efecto de borde para el encabezado */
+        header {
+            border-bottom: 2px solid rgba(0, 255, 255, 0.2); /* Borde verde cian sutil */
+        }
+
+        /* Estilos de Barra de Desplazamiento (Scrollbar) personalizada para Webkit */
+        ::-webkit-scrollbar {
+            width: 8px; /* Reducido de 10px */
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e; /* Fondo del track de la barra de desplazamiento */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00FFFF; /* Color del "pulgar" de la barra de desplazamiento (verde cian) */
+            border-radius: 10px;
+            border: 2px solid #1a1a2e; /* Mantenido 2px */
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #33FFFF; /* Verde cian más brillante al pasar el ratón */
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.6); /* Ligero brillo */
+        }
+        .info-section {
+            background-color: #1f1f3a;
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.2rem; /* Reducido de 1.5rem */
+            margin-top: 0.8rem; /* Reducido de 1rem */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .info-section h3 {
+            color: #00FFFF; /* Verde cian para subtítulos */
+            font-family: 'Fira Code', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem; /* Reducido de 0.6rem */
+            font-size: 1rem; /* Reducido de 1.1rem */
+        }
+        .info-section p {
+            color: #b0b0b0; /* Gris claro para el texto */
+            line-height: 1.4; /* Reducido de 1.5 */
+            font-size: 0.875rem; /* Mantenido en text-sm */
+        }
+
+        /* Estilos específicos para los submenús desplegables */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%; /* Justo debajo del elemento padre */
+            left: 50%; /* Centra el dropdown horizontalmente */
+            transform: translateX(-50%) translateY(-10px); /* Inicialmente un poco hacia arriba */
+            background-color: #2a2a4a; /* Fondo oscuro para los submenús */
+            border: 1px solid rgba(0, 255, 255, 0.2); /* Borde sutil verde cian */
+            border-radius: 0.5rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Sombra más pronunciada */
+            min-width: 140px; /* Tamaño ligeramente aumentado */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease; /* Transición para animación */
+            z-index: 100; /* Asegura que esté por encima de otros elementos */
+            padding: 0.5rem 0; /* Aumentado el padding general del menú */
+            margin-top: 0.2rem;
+        }
+
+        /* Desktop dropdown hover effect (managed by CSS) */
+        .group:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0); /* Se desliza hacia abajo a su posición final */
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.6rem 1rem; /* Padding más generoso para cada elemento */
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif; /* Fuente estándar para submenús */
+            font-size: 0.8rem; /* Tamaño de fuente ligeramente aumentado */
+            white-space: nowrap; /* Evita que el texto se rompa */
+            transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; /* Añadida transición para sombra */
+            border-radius: 0.3rem; /* Bordes ligeramente redondeados para los elementos */
+            margin: 0 0.3rem; /* Pequeño margen para separación y redondez */
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #3b3b5c; /* Fondo más claro al pasar el ratón */
+            color: #00FFFF; /* Texto verde cian al pasar el ratón */
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.6); /* Brillo cian al pasar el ratón */
+        }
+
+        /* Asegura que el menú de navegación principal sea siempre flex row en todas las pantallas */
+        #main-navigation-menu {
+            display: flex;
+            flex-direction: row; /* Siempre en fila */
+            justify-content: flex-end; /* Alinea los elementos a la derecha */
+            width: auto; /* Permite que el ancho se ajuste al contenido */
+            position: static; /* Elimina cualquier posicionamiento absoluto */
+            background-color: transparent; /* Elimina cualquier fondo extra */
+            box-shadow: none; /* Elimina cualquier sombra extra */
+            padding-bottom: 0; /* Elimina cualquier padding extra */
+            margin-left: auto; /* Empuja el menú a la derecha en la barra de navegación */
+        }
+
+        #main-navigation-menu li {
+            width: auto; /* Los elementos de la lista se ajustan a su contenido */
+            text-align: left; /* Alineación de texto normal */
+            padding: 0; /* Elimina padding extra */
+        }
+        #main-navigation-menu .nav-link-terminal {
+            width: auto; /* Los enlaces se ajustan a su contenido */
+            padding: 0.75rem 0.5rem; /* Ajusta el padding de los enlaces */
+        }
+        /* Ajustes específicos para el espacio entre los elementos del menú */
+        #main-navigation-menu li:not(:last-child) {
+            margin-right: 0.5rem; /* Espacio entre los elementos del menú */
+        }
+
+        /* --- Estilos para la Página de Hosting de Minecraft --- */
+        .plan-card {
+            background-color: #1f1f3a; /* Fondo más claro para las tarjetas de plan */
+            border-radius: 1rem; /* Bordes más redondeados */
+            padding: 1.5rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent; /* Borde inicial transparente */
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px); /* Efecto de elevación al pasar el ratón */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 255, 0.3); /* Sombra y brillo cian */
+            border-color: #00FFFF; /* Borde cian al pasar el ratón */
+        }
+
+        .plan-card.recommended {
+            border-color: #00FFFF; /* Borde cian para el plan recomendado */
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.4); /* Brillo especial para recomendado */
+            animation: recommended-pulse 2s infinite alternate;
+        }
+
+        @keyframes recommended-pulse {
+            0% {
+                box-shadow: 0 10px 20px rgba(0, 255, 255, 0.4);
+            }
+            100% {
+                box-shadow: 0 12px 24px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        .plan-card h3 {
+            font-family: 'Fira Code', monospace;
+            color: #00FFFF; /* Título del plan en cian */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .plan-card .price {
+            font-size: 2.5rem; /* Tamaño grande para el precio */
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        .plan-card .price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #b0b0b0;
+        }
+
+        .plan-card ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+            text-align: left; /* Alinea las características a la izquierda */
+        }
+
+        .plan-card ul li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        .plan-card ul li .lucide {
+            color: #00FFFF; /* Iconos de característica en cian */
+            margin-right: 0.5rem;
+            flex-shrink: 0; /* Evita que el icono se encoja */
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .feature-item {
+            background-color: #1f1f3a;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-item .lucide {
+            color: #00FFFF;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item h4 {
+            font-family: 'Fira Code', monospace;
+            color: #e0e0e0;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-item p {
+            color: #b0b0b0;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Sección de Cabecera (Header) -->
+    <header class="bg-gray-900 bg-opacity-70 text-white p-2.5 sticky top-0 z-50 rounded-b-lg shadow-lg px-4">
+        <nav class="w-full flex justify-between items-center">
+            <!-- Logo de VoltixCloud (Texto con Icono Lucide) -->
+            <a href="#" class="text-lg font-bold text-purple-400 flex items-center rounded-md px-1.5 py-0.5">
+                <span data-lucide="cloud-lightning" class="mr-1 w-4 h-4"></span> VoltixCloud
+            </a>
+
+            <!-- Main Navigation (sin botón de hamburguesa) -->
+            <ul id="main-navigation-menu" class="flex space-x-2 items-center">
+                <li><a href="index.html" class="nav-link-terminal px-2.5 py-1.5">Inicio</a></li>
+                
+                <!-- Servicios Dropdown -->
+                <li class="relative group">
+                    <a href="#" class="nav-link-terminal px-2.5 py-1.5 flex items-center">
+                        Servicios <span data-lucide="chevron-down" class="ml-1 w-3 h-3"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="minecrafthosting.html">Minecraft Hosting</a></li>
+                        <li><a href="hostingweb.html">Web Design</a></li>
+                    </ul>
+                </li>
+
+                <!-- Nuevo botón: Panel -->
+                <li><a href="#panel" class="nav-link-terminal px-2.5 py-1.5">Panel</a></li>
+                
+                <li><a href="#foro" class="nav-link-terminal px-2.5 py-1.5">Foro</a></li>
+                
+                <!-- Centro de Ayuda Dropdown -->
+                <li class="relative group">
+                    <a href="centrodeayuda.html" class="nav-link-terminal px-2.5 py-1.5 flex items-center">
+                        Centro de Ayuda <span data-lucide="chevron-down" class="ml-1 w-3 h-3"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="centrodeayuda.html">Centro de Información</a></li>
+                        <li><a href="#hablar-staff">Hablar con un Staff</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Contacto Dropdown -->
+                <li class="relative group">
+                    <a href="#" class="nav-link-terminal px-2.5 py-1.5 flex items-center">
+                        Contacto <span data-lucide="chevron-down" class="ml-1 w-3 h-3"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://discord.gg/jhA9DHTHAW" target="_blank">Discord</a></li>
+                        <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Sección Hero de Minecraft Hosting -->
+    <section class="hero-section text-white text-center py-16 md:py-24 lg:py-32 flex items-center justify-center rounded-b-lg shadow-xl">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h1 class="text-xl md:text-3xl font-extrabold mb-2 leading-tight">
+                Hosting de Minecraft: ¡Construye Tu Mundo Sin Límites!
+            </h1>
+            <p class="text-sm md:text-base mb-4 opacity-90">
+                Servidores de Minecraft potentes, fiables y fáciles de gestionar. Dedica tu tiempo a jugar, nosotros nos encargamos del rendimiento.
+            </p>
+            <a href="#planes-hosting" class="btn-primary py-1.5 px-4 text-sm font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                Ver Planes de Hosting
+            </a>
+        </div>
+    </section>
+
+    <!-- Sección de Planes de Hosting -->
+    <section id="planes-hosting" class="py-10 md:py-16 bg-gray-800 rounded-lg shadow-lg mx-auto container mt-8 px-4">
+        <h2 class="text-xl md:text-2xl font-bold text-center mb-10 text-purple-300">Nuestros Planes de Hosting de Minecraft</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Plan Starter -->
+            <div class="plan-card text-center">
+                <h3>Plan Básico</h3>
+                <p class="price">$2.00<span>/mes</span></p> <!-- Precio actualizado a $2.00 -->
+                <ul class="mb-4">
+                    <li><span data-lucide="server" class="w-4 h-4"></span> 2 GB RAM Dedicada</li>
+                    <li><span data-lucide="cpu" class="w-4 h-4"></span> 2 vCPU Intel/AMD</li>
+                    <li><span data-lucide="hard-drive" class="w-4 h-4"></span> 20 GB NVMe SSD</li>
+                    <li><span data-lucide="users" class="w-4 h-4"></span> 10-20 Jugadores Recomendados</li>
+                    <li><span data-lucide="shield-check" class="w-4 h-4"></span> Protección DDoS Básica</li>
+                    <li><span data-lucide="layout-panel-left" class="w-4 h-4"></span> Panel de Control Intuitivo</li>
+                    <li><span data-lucide="wrench" class="w-4 h-4"></span> Soporte 24/7</li>
+                </ul>
+                <a href="#" class="btn-primary py-2 px-6 text-sm font-semibold rounded-full shadow-lg block w-full">Comprar Ahora</a>
+            </div>
+
+            <!-- Plan Pro (Recomendado) -->
+            <div class="plan-card text-center recommended">
+                <span class="absolute top-4 right-4 text-xs font-bold text-black bg-cyan-400 px-3 py-1 rounded-full uppercase -rotate-12 transform origin-top-right shadow-md">
+                    Recomendado
+                </span>
+                <h3>Plan Avanzado</h3>
+                <p class="price">$4.00<span>/mes</span></p> <!-- Precio actualizado a $4.00 -->
+                <ul class="mb-4">
+                    <li><span data-lucide="server" class="w-4 h-4"></span> 4 GB RAM Dedicada</li>
+                    <li><span data-lucide="cpu" class="w-4 h-4"></span> 4 vCPU Intel/AMD</li>
+                    <li><span data-lucide="hard-drive" class="w-4 h-4"></span> 40 GB NVMe SSD</li>
+                    <li><span data-lucide="users" class="w-4 h-4"></span> 30-50 Jugadores Recomendados</li>
+                    <li><span data-lucide="shield-check" class="w-4 h-4"></span> Protección DDoS Avanzada</li>
+                    <li><span data-lucide="layout-panel-left" class="w-4 h-4"></span> Panel de Control Pterodactyl</li>
+                    <li><span data-lucide="wrench" class="w-4 h-4"></span> Soporte Prioritario 24/7</li>
+                    <li><span data-lucide="cloud-lightning" class="w-4 h-4"></span> Backups Diarios Automáticos</li>
+                </ul>
+                <a href="#" class="btn-primary py-2 px-6 text-sm font-semibold rounded-full shadow-lg block w-full">Comprar Ahora</a>
+            </div>
+
+            <!-- Plan Ultimate -->
+            <div class="plan-card text-center">
+                <h3>Plan Ultimate</h3>
+                <p class="price">$8.00<span>/mes</span></p> <!-- Precio actualizado a $8.00 -->
+                <ul class="mb-4">
+                    <li><span data-lucide="server" class="w-4 h-4"></span> 8 GB RAM Dedicada</li>
+                    <li><span data-lucide="cpu" class="w-4 h-4"></span> 6 vCPU Intel/AMD</li>
+                    <li><span data-lucide="hard-drive" class="w-4 h-4"></span> 80 GB NVMe SSD</li>
+                    <li><span data-lucide="users" class="w-4 h-4"></span> 80+ Jugadores Recomendados</li>
+                    <li><span data-lucide="shield-check" class="w-4 h-4"></span> Protección DDoS Premium</li>
+                    <li><span data-lucide="layout-panel-left" class="w-4 h-4"></span> Panel de Control Pterodactyl</li>
+                    <li><span data-lucide="wrench" class="w-4 h-4"></span> Soporte VIP 24/7</li>
+                    <li><span data-lucide="cloud-lightning" class="w-4 h-4"></span> Backups Diarios Automáticos</li>
+                    <li><span data-lucide="map-pin" class="w-4 h-4"></span> Ubicación de Servidor Preferida</li>
+                </ul>
+                <a href="#" class="btn-primary py-2 px-6 text-sm font-semibold rounded-full shadow-lg block w-full">Comprar Ahora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Características Clave de Hosting -->
+    <section class="py-10 md:py-16 container mx-auto px-4">
+        <h2 class="text-xl md:text-2xl font-bold text-center mb-10 text-purple-300">Características que Amarás</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span data-lucide="hard-drive" class="w-8 h-8 mx-auto"></span>
+                <h4>NVMe SSD Ultrarrápido</h4>
+                <p>Carga de mundos y plugins instantánea para una experiencia sin interrupciones.</p>
+            </div>
+            <div class="feature-item">
+                <span data-lucide="cpu" class="w-8 h-8 mx-auto"></span>
+                <h4>Procesadores de Última Generación</h4>
+                <p>Potencia de procesamiento de vanguardia para manejar grandes comunidades y modpacks.</p>
+            </div>
+            <div class="feature-item">
+                <span data-lucide="shield" class="w-8 h-8 mx-auto"></span>
+                <h4>Protección DDoS Incluida</h4>
+                <p>Defensa automática contra ataques para mantener tu servidor siempre en línea.</p>
+            </div>
+            <div class="feature-item">
+                <span data-lucide="cloud-lightning" class="w-8 h-8 mx-auto"></span>
+                <h4>Backups Diarios Automáticos</h4>
+                <p>Tus mundos y progresos siempre seguros con copias de seguridad automáticas.</p>
+            </div>
+            <div class="feature-item">
+                <span data-lucide="layout-panel-left" class="w-8 h-8 mx-auto"></span>
+                <h4>Panel Pterodactyl Intuitivo</h4>
+                <p>Gestión completa de tu servidor: mods, plugins, versiones, consola y más.</p>
+            </div>
+            <div class="feature-item">
+                <span data-lucide="globe" class="w-8 h-8 mx-auto"></span>
+                <h4>Múltiples Ubicaciones Globales</h4>
+                <p>Reduce la latencia eligiendo el servidor más cercano a tus jugadores.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Preguntas Frecuentes -->
+    <section class="py-10 md:py-16 container mx-auto px-4">
+        <h2 class="text-xl md:text-2xl font-bold text-center mb-10 text-purple-300">Preguntas Frecuentes</h2>
+        <div class="max-w-3xl mx-auto space-y-6">
+            <!-- FAQ Item 1 -->
+            <div class="bg-gray-900 rounded-lg p-4 shadow-md">
+                <h3 class="text-lg font-semibold text-white mb-2">¿Qué versión de Minecraft puedo usar?</h3>
+                <p class="text-gray-300 text-sm">Puedes instalar cualquier versión de Minecraft (Java Edition) incluyendo Vanilla, Spigot, Paper, Forge, Fabric, y más, directamente desde nuestro panel de control.</p>
+            </div>
+            <!-- FAQ Item 2 -->
+            <div class="bg-gray-900 rounded-lg p-4 shadow-md">
+                <h3 class="text-lg font-semibold text-white mb-2">¿Puedo subir mis propios mundos y plugins?</h3>
+                <p class="text-gray-300 text-sm">Sí, nuestro panel de control te permite subir fácilmente tus propios mundos, plugins, mods y archivos de configuración vía SFTP o el gestor de archivos web.</p>
+            </div>
+            <!-- FAQ Item 3 -->
+            <div class="bg-gray-900 rounded-lg p-4 shadow-md">
+                <h3 class="text-lg font-semibold text-white mb-2">¿Ofrecen protección DDoS?</h3>
+                <p class="text-gray-300 text-sm">Absolutamente. Todos nuestros planes incluyen protección DDoS avanzada para garantizar que tu servidor esté seguro y en línea, incluso durante ataques.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de Página (Footer) - Minimalista -->
+    <footer class="bg-gray-900 py-5 rounded-t-lg shadow-xl">
+        <div class="container mx-auto px-4 text-center text-gray-400">
+            <!-- Logo de VoltixCloud en el Footer -->
+            <a href="#" class="text-base font-bold text-purple-400 flex items-center justify-center mb-3 rounded-md px-1.5 py-0.5">
+                <span data-lucide="cloud-lightning" class="mr-1 w-4 h-4"></span> VoltixCloud
+            </a>
+            <div class="flex space-x-2 justify-center mb-3">
+                <!-- Iconos de Redes Sociales -->
+                <a href="https://twitter.com" target="_blank" class="text-gray-400 hover:text-purple-400 transition-colors duration-200" aria-label="Twitter">
+                    <span data-lucide="twitter" class="w-5 h-5"></span> Twitter
+                </a>
+                <a href="https://facebook.com" target="_blank" class="text-gray-400 hover:text-purple-400 transition-colors duration-200" aria-label="Facebook">
+                    <span data-lucide="facebook" class="w-5 h-5"></span> Facebook
+                </a>
+            </div>
+            <div class="border-t border-gray-700 pt-3 mt-3 text-xs">
+                <p>&copy; 2025 VoltixCloud. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Inicializa los iconos de Lucide
+        lucide.createIcons();
+
+        // Agrega un listener para el desplazamiento suave de los enlaces de anclaje
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                } else {
+                    // Redirecciones a páginas dedicadas
+                    if (targetId === 'planes-redirect') {
+                        window.location.href = 'minecrafthosting.html';
+                    } else if (targetId === 'minecraft-hosting') {
+                        console.log('Ya estás en la sección de Minecraft Hosting.');
+                    } else if (targetId === 'web-design') {
+                        window.location.href = 'hostingweb.html';
+                    } else if (targetId === 'foro') {
+                        console.log('Redirigiendo a la página del Foro...');
+                        // window.location.href = '/foro.html'; // Descomenta y ajusta
+                    } else if (targetId === 'centro-informacion') {
+                        window.location.href = 'centrodeayuda.html';
+                    } else if (targetId === 'hablar-staff') {
+                        console.log('Redirigiendo a la opción Hablar con un Staff...');
+                        // window.location.href = '/ayuda/contacto-staff.html'; // Descomenta y ajusta
+                    } else if (targetId === 'panel') {
+                        console.log('Redirigiendo al panel de usuario...');
+                        // window.location.href = '/panel.html'; // Descomenta y ajusta
+                    } else if (targetId === 'contacto') {
+                        // Puedes redirigir a un formulario de contacto o una sección de contacto
+                        console.log('Redirigiendo a la sección de contacto o formulario.');
+                    }
+                    // Los enlaces a Discord e Instagram en el menú de Contacto ya tienen target="_blank" y href directos
+                }
+            });
+        });
+    </script>
+</body>
+</html>
